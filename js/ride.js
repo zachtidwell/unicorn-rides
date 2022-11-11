@@ -41,6 +41,7 @@ WildRydes.map = WildRydes.map || {};
     function completeRequest(result) {
         var unicorn;
         var pronoun;
+
         console.log('Response received from API: ', result);
         unicorn = result.Unicorn;
         pronoun = unicorn.Gender === 'Male' ? 'his' : 'her';
@@ -78,6 +79,7 @@ WildRydes.map = WildRydes.map || {};
 
     function handleRequestClick(event) {
         var pickupLocation = WildRydes.map.selectedPoint;
+
         event.preventDefault();
         requestUnicorn(pickupLocation);
     }

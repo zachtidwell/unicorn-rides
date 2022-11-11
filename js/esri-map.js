@@ -4,119 +4,57 @@ var WildRydes = window.WildRydes || {};
 WildRydes.map = WildRydes.map || {};
 
 (function esriMapScopeWrapper($) {
-    require([
-        'esri/Map',
-        'esri/views/MapView',
-        'esri/Graphic',
-        'esri/geometry/Point',
-        'esri/symbols/TextSymbol',
-        'esri/symbols/PictureMarkerSymbol',
-        'esri/geometry/support/webMercatorUtils',
-        'dojo/domReady!'
-    ], function requireCallback(
-        Map, MapView,
-        Graphic, Point, TextSymbol,
-        PictureMarkerSymbol, webMercatorUtils
-    ) {
-        var wrMap = WildRydes.map;
+    var wrMap = WildRydes.map;
 
-        var map = new Map({ basemap: 'gray-vector' });
+    function updateCenter(newValue) {
+        wrMap.center = {latitude: newValue.coords.latitude, longitude: newValue.coords.longitude};
+    }
 
-        var view = new MapView({
-            center: [-122.31, 47.60],
-            container: 'map',
-            map: map,
-            zoom: 12
-        });
+    function updateExtent(newValue) {			//	TODO moved
+        let b = wrMap.getBounds();
+        wrMap.extent = {minLat: b._northEast.lat, minLng: b._northEast.lng,
+            maxLat: b._southWest.lat, maxLng: b._southWest.lng};
+    }
 
-        var pinSymbol = new TextSymbol({
-            color: '#f50856',
-            text: '\ue61d',
-            font: {
-                size: 20,
-                family: 'CalciteWebCoreIcons'
-            }
-        });
+    let map = document.getElementById('map');
+    map.addEventListener('click', (e) => {			//	TODO moved
+        wrMap.selectedPoint = {longitude: e.latlng.lng, latitude: e.latlng.lat};
+        if (WildRydes.marker)       WildRydes.marker.remove();
+        handlePickupChanged();
 
-        var unicornSymbol = new PictureMarkerSymbol({
-            url: '/images/unicorn-icon.png',
-            width: '25px',
-            height: '25px'
-        });
-
-        var pinGraphic;
-        var unicornGraphic;
-
-        function updateCenter(newValue) {
-            wrMap.center = {
-                latitude: newValue.latitude,
-                longitude: newValue.longitude
-            };
-        }
-
-        function updateExtent(newValue) {
-            var min = webMercatorUtils.xyToLngLat(newValue.xmin, newValue.ymin);
-            var max = webMercatorUtils.xyToLngLat(newValue.xmax, newValue.ymax);
-            wrMap.extent = {
-                minLng: min[0],
-                minLat: min[1],
-                maxLng: max[0],
-                maxLat: max[1]
-            };
-        }
-
-        view.watch('extent', updateExtent);
-        view.watch('center', updateCenter);
-        view.then(function onViewLoad() {
-            updateExtent(view.extent);
-            updateCenter(view.center);
-        });
-
-        view.on('click', function handleViewClick(event) {
-            wrMap.selectedPoint = event.mapPoint;
-            view.graphics.remove(pinGraphic);
-            pinGraphic = new Graphic({
-                symbol: pinSymbol,
-                geometry: wrMap.selectedPoint
-            });
-            view.graphics.add(pinGraphic);
-            $(wrMap).trigger('pickupChange');
-        });
-
-        wrMap.animate = function animate(origin, dest, callback) {
-            var startTime;
-            var step = function animateFrame(timestamp) {
-                var progress;
-                var progressPct;
-                var point;
-                var deltaLat;
-                var deltaLon;
-                if (!startTime) startTime = timestamp;
-                progress = timestamp - startTime;
-                progressPct = Math.min(progress / 2000, 1);
-                deltaLat = (dest.latitude - origin.latitude) * progressPct;
-                deltaLon = (dest.longitude - origin.longitude) * progressPct;
-                point = new Point({
-                    longitude: origin.longitude + deltaLon,
-                    latitude: origin.latitude + deltaLat
-                });
-                view.graphics.remove(unicornGraphic);
-                unicornGraphic = new Graphic({
-                    geometry: point,
-                    symbol: unicornSymbol
-                });
-                view.graphics.add(unicornGraphic);
-                if (progressPct < 1) {
-                    requestAnimationFrame(step);
-                } else {
-                    callback();
-                }
-            };
-            requestAnimationFrame(step);
-        };
-
-        wrMap.unsetLocation = function unsetLocation() {
-            view.graphics.remove(pinGraphic);
-        };
+        WildRydes.marker  = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+        // $(wrMap).trigger('pickupChange');
     });
+
+    wrMap.animate = function animate(origin, dest, callback) {          //  TODO moved
+        let tick = 0;
+        let id = null;
+        const unicorn = WildRydes.unicorn;
+
+        let latlng = unicorn.getLatLng();
+        let latInc = (dest.latitude - latlng.lat) / 100;
+        let lngInc = (dest.longitude - latlng.lng) / 100;
+        // let latInc = (dest.latitude - origin.latitude) / 100;
+        // let lngInc = (dest.longitude - origin.longitude) / 100;
+        // let latlng = {lat: origin.latitude, lng: origin.longitude};
+
+        clearInterval(id);
+        id = setInterval(frame, 5);
+        function frame() {
+            if (tick === 100) {
+                clearInterval(id);
+                callback();
+            } else {
+                tick++;
+                latlng = {lat: latlng.lat +  latInc, lng: latlng.lng +  lngInc};
+                unicorn.setLatLng(latlng);
+                console.log(latlng);
+            }
+        }
+    }
+
+    wrMap.unsetLocation = function unsetLocation() {		//	TODO moved
+        if (WildRydes.marker)
+            WildRydes.marker.remove();
+    };
 }(jQuery));
