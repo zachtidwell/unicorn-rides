@@ -2,6 +2,7 @@
 
 var WildRydes = window.WildRydes || {};
 WildRydes.map = WildRydes.map || {};
+let map;
 
 (function rideScopeWrapper($) {
     var authToken;
@@ -15,6 +16,9 @@ WildRydes.map = WildRydes.map || {};
         alert(error);
         window.location.href = '/signin.html';
     });
+
+    //  requestUnicorn
+    //      make the POST request to the server
     function requestUnicorn(pickupLocation) {
         $.ajax({
             method: 'POST',
@@ -29,7 +33,7 @@ WildRydes.map = WildRydes.map || {};
                 }
             }),
             contentType: 'application/json',
-            success: completeRequest,
+            success: result => completeRequest(result, pickupLocation),
             error: function ajaxError(jqXHR, textStatus, errorThrown) {
                 console.error('Error requesting ride: ', textStatus, ', Details: ', errorThrown);
                 console.error('Response: ', jqXHR.responseText);
@@ -38,17 +42,25 @@ WildRydes.map = WildRydes.map || {};
         });
     }
 
-    function completeRequest(result) {
+    //  completeRequest
+    //      a Unicorn has been dispatched to your location
+    function completeRequest(result, pickupLocation) {
         var unicorn;
         var pronoun;
 
         console.log('Response received from API: ', result);
         unicorn = result.Unicorn;
         pronoun = unicorn.Gender === 'Male' ? 'his' : 'her';
-        displayUpdate(unicorn.Name + ', your ' + unicorn.Color + ' unicorn, is on ' + pronoun + ' way.');
+        displayUpdate(unicorn.Name + ', your ' + unicorn.Color + ' unicorn, is on ' + pronoun + ' way.', unicorn.Color);
+
+        console.log(pickupLocation);
+        //  get the local weather, find nearby restaurants, movies
+        // getWeather(pickupLocation, unicorn)
+
         animateArrival(function animateCallback() {
-            displayUpdate(unicorn.Name + ' has arrived. Giddy up!');
+            displayUpdate(unicorn.Name + ' has arrived. Giddy up!', unicorn.Color);
             WildRydes.map.unsetLocation();
+
             $('#request').prop('disabled', 'disabled');
             $('#request').text('Set Pickup');
         });
@@ -57,7 +69,6 @@ WildRydes.map = WildRydes.map || {};
     // Register click handler for #request button
     $(function onDocReady() {
         $('#request').click(handleRequestClick);
-        $(WildRydes.map).on('pickupChange', handlePickupChanged);
 
         WildRydes.authToken.then(function updateAuthMessage(token) {
             if (token) {
@@ -69,21 +80,73 @@ WildRydes.map = WildRydes.map || {};
         if (!_config.api.invokeUrl) {
             $('#noApiMessage').show();
         }
+
+        window.navigator.geolocation
+            .getCurrentPosition(setLocation);
+
+        //  put the map behind the updates list
+        document.getElementById("map").style.zIndex = "10";
+
+        function setLocation(loc) {
+            map = L.map('map').setView([loc.coords.latitude, loc.coords.longitude], 13);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            WildRydes.map.center = {latitude: loc.coords.latitude, longitude: loc.coords.longitude};
+            let b = map.getBounds();        //  TODO moved
+            WildRydes.map.extent = {minLat: b._northEast.lat, minLng: b._northEast.lng,
+                maxLat: b._southWest.lat, maxLng: b._southWest.lng};
+
+            WildRydes.marker  = L.marker([loc.coords.latitude, loc.coords.longitude]).addTo(map);
+            var myIcon = L.icon({
+                iconUrl: 'images/unicorn-icon.png',
+                iconSize: [25, 25],
+                iconAnchor: [22, 24],
+                shadowSize: [25, 25],
+                shadowAnchor: [22, 24]
+            });
+            WildRydes.unicorn = L.marker([loc.coords.latitude, loc.coords.longitude], {icon: myIcon}).addTo(map);
+            // WildRydes.marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+
+            // var popup = L.popup();
+            map.on('click', onMapClick);
+
+            function onMapClick(e) {            //  TODO move to esri.js
+                WildRydes.map.selectedPoint = {longitude: e.latlng.lng, latitude: e.latlng.lat};
+                if (WildRydes.marker)       WildRydes.marker.remove();
+                handlePickupChanged();
+
+                WildRydes.marker  = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+
+                // popup
+                //     .setLatLng(e.latlng)
+                //     .setContent("You clicked the map at " + e.latlng.toString())
+                //     .openOn(map);
+            }
+        }
     });
 
+    //  handlePickupChanged
+    //      enable the Pickup button and set text to Request Unicorn
     function handlePickupChanged() {
         var requestButton = $('#request');
         requestButton.text('Request Unicorn');
         requestButton.prop('disabled', false);
     }
 
+    //  handleRequestClick
+    //      get current request location and POST request to server
     function handleRequestClick(event) {
-        var pickupLocation = WildRydes.map.selectedPoint;
+        var pickupLocation =  WildRydes.map.selectedPoint;
 
         event.preventDefault();
         requestUnicorn(pickupLocation);
     }
 
+    //  animateArrival
+    //      animate the Unicorn's arrival to the user's pickup location
     function animateArrival(callback) {
         var dest = WildRydes.map.selectedPoint;
         var origin = {};
@@ -103,7 +166,16 @@ WildRydes.map = WildRydes.map || {};
         WildRydes.map.animate(origin, dest, callback);
     }
 
-    function displayUpdate(text) {
-        $('#updates').append($('<li>' + text + '</li>'));
-    }
+
 }(jQuery));
+
+//  these functions below here are my utility functions
+//      to present messages to users
+//      and to particularly add some 'sizzle' to the application
+
+//  displayUpdate
+//      nice utility method to show message to user
+function displayUpdate(text, color='green') {
+    $('#updates').prepend($(`<li style="background-color:${color}">${text}</li>`));
+}
+
