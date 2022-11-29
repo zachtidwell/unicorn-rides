@@ -1,6 +1,5 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-// SPDX-License-Identifier: MIT-0
 
 const randomBytes = require('crypto').randomBytes;
 
@@ -16,12 +15,12 @@ const fleet = [
 	},
 	{
 		Name: 'Scrappy',
-		Color: 'Mean Green',
+		Color: 'Green',
 		Gender: 'Male',
 	},
 	{
 		Name: 'Cosmo',
-		Color: 'Royal Blue',
+		Color: 'RoyalBlue',
 		Gender: 'Male',
 	},
 	{
