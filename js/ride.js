@@ -166,6 +166,10 @@ let map;
         WildRydes.map.animate(origin, dest, callback);
     }
 
+    $('#cityInfoButton').click(function() {
+        console.log('Here');
+    });
+
 
 }(jQuery));
 
