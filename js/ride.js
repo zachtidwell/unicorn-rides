@@ -187,7 +187,7 @@ let map;
                 console.log('Country:', country);
             }
         });
-    });
+    };
 
 
 }(jQuery));
