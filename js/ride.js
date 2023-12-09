@@ -69,6 +69,9 @@ let map;
     // Register click handler for #request button
     $(function onDocReady() {
         $('#request').click(handleRequestClick);
+        $('#cityInfoButton').click(function(event) {
+            cityInfo(event);
+        });
 
         WildRydes.authToken.then(function updateAuthMessage(token) {
             if (token) {
@@ -166,7 +169,7 @@ let map;
         WildRydes.map.animate(origin, dest, callback);
     }
 
-    $('#cityInfoButton').click(function() {
+    function cityInfo(event){
         console.log('Here');
         var pickupLocation =  WildRydes.map.selectedPoint;
         console.log('pickupLocation', pickupLocation); // Log the pickupLocation variable
