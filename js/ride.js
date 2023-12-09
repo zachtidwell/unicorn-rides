@@ -311,14 +311,23 @@ let map;
                 console.log('Country:', country);
                 console.log('results' , data.results[0]);
 
-                fare = countryCosts[country] ? countryCosts[country] : 'N/A';
-                distance = calculateDistance(lat1, lon1, lat2, lon2);
-                price = fare * distance.toFixed(2);
-                console.log('fare', fare);
-                console.log('distance', distance);
-                console.log('price', price);
-
-                displayUpdate('From your current location to your destination, accounting for the average cab fair of your destination country, a cab would cost', price);                
+                if (country === null) {
+                    displayUpdate('The destination is invalid.');
+                } else {
+                    fare = countryCosts[country];
+            
+                    if (fare === null) {
+                        displayUpdate('There is no average cab fare information for this country.');
+                    } else {
+                        distance = calculateDistance(lat1, lon1, lat2, lon2);
+                        price = (fare * distance).toFixed(2);
+                        console.log('fare', fare);
+                        console.log('distance', distance);
+                        console.log('price', price);
+            
+                        displayUpdate('From your current location to your destination, accounting for the average cab fair of your destination country, a cab would cost', price);                
+                    }
+                }             
             }
         });
     };
