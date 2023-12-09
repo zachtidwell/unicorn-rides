@@ -315,12 +315,12 @@ let map;
                 console.log('results' , data.results[0]);
 
                 if (country === null) {
-                    displayUpdate('The destination is invalid.');
+                    displayUpdate('The destination is invalid.', 'red');
                 } else {
                     fare = countryCosts[country];
             
-                    if (fare === NaN || null) {
-                        displayUpdate('There is no average cab fare information for this country.');
+                    if (fare === undefined) {
+                        displayUpdate('There is no average cab fare information for this country.', 'red');
                     } else {
                         distance = calculateDistance(lat1, lon1, lat2, lon2);
                         price = (fare * distance).toFixed(2);
