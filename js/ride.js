@@ -303,13 +303,9 @@ let map;
             method: 'GET',
             success: function(data) {
                 var country = data.results[0].components.country;
-                var currency_code = data.results[0].currency.iso_code;
-                var currency_symbol = data.results[0].currency.disambiguate_symbol;
                 console.log('Country:', country);
                 console.log('results' , data.results[0]);
 
-                var distance = calculateDistance(lat1, lon1, lat2, lon2);
-                console.log(distance);
                 if (currency_code === 'USD') {
                     fare = countryCosts["United States"]
                 }
