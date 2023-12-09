@@ -310,7 +310,7 @@ let map;
             url: `https://api.opencagedata.com/geocode/v1/json?q=${pickupLocation.latitude}+${pickupLocation.longitude}&key=dd507c051aae45ef90f32bc004e7c475`,
             method: 'GET',
             success: function(data) {
-                var country = data.results[0].components.country;
+                var country = data.results[0].components.hasOwnProperty('country') ? data.results[0].components.country : null;
                 console.log('Country:', country);
                 console.log('results' , data.results[0]);
 
