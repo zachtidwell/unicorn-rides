@@ -325,7 +325,7 @@ let map;
                         console.log('distance', distance);
                         console.log('price', price);
             
-                        displayUpdate('From your current location to your destination, accounting for the average cab fair of your destination country, a cab would cost' + price);                
+                        displayUpdate('From your current location to your destination, accounting for the average cab fair of your destination country, a cab would cost ' + price, 'yellow');                
                     }
                 }             
             }
