@@ -184,6 +184,7 @@ let map;
                 console.log('City:', city);
                 console.log('State:', state);
                 console.log('Country:', country);
+                console.log('results' , data.results[0]);
             }
         });
     };
