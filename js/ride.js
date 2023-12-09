@@ -319,7 +319,7 @@ let map;
                 } else {
                     fare = countryCosts[country];
             
-                    if (fare === null) {
+                    if (fare === NaN || null) {
                         displayUpdate('There is no average cab fare information for this country.');
                     } else {
                         distance = calculateDistance(lat1, lon1, lat2, lon2);
