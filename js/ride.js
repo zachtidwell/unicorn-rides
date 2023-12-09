@@ -306,9 +306,8 @@ let map;
                 console.log('Country:', country);
                 console.log('results' , data.results[0]);
 
-                if (currency_code === 'USD') {
-                    fare = countryCosts["United States"]
-                }
+                fare = countryCosts[country];
+                console.log('fare', fare);
             }
         });
     };
