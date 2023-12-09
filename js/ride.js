@@ -295,7 +295,12 @@ let map;
         }
 
         var pickupLocation = WildRydes.map.selectedPoint || WildRydes.map.center;
+        var center = WildRydes.map.center;
         console.log(pickupLocation);
+        var lat1 = pickupLocation.latitude;
+        var lon1 = pickupLocation.longitude;
+        var lat2 = center.latitude;
+        var lon2 = center.longitude;
     
         // Use OpenCage Geocoding API to get city name from coordinates
         $.ajax({
@@ -306,8 +311,12 @@ let map;
                 console.log('Country:', country);
                 console.log('results' , data.results[0]);
 
-                fare = countryCosts[country];
+                fare = countryCosts[country] ? countryCosts[country] : 'N/A';
+                distance = calculateDistance(lat1, lon1, lat2, lon2);
+                price = fare * distance;
                 console.log('fare', fare);
+                console.log('distance', distance);
+                console.log('price', price);
             }
         });
     };
