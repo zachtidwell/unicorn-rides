@@ -168,6 +168,22 @@ let map;
 
     $('#cityInfoButton').click(function() {
         console.log('Here');
+        var pickupLocation =  WildRydes.map.selectedPoint;
+        console.log('pickupLocation', pickupLocation); // Log the pickupLocation variable
+    
+        // Use OpenCage Geocoding API to get city name from coordinates
+        $.ajax({
+            url: `https://api.opencagedata.com/geocode/v1/json?q=${pickupLocation.latitude}+${pickupLocation.longitude}&key=dd507c051aae45ef90f32bc004e7c475`,
+            method: 'GET',
+            success: function(data) {
+                var city = data.results[0].components.city;
+                var state = data.results[0].components.state;
+                var country = data.results[0].components.country;
+                console.log('City:', city);
+                console.log('State:', state);
+                console.log('Country:', country);
+            }
+        });
     });
 
 
