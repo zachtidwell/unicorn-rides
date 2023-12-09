@@ -38,6 +38,11 @@ html, body, #main, #map {
     width: 135px;
 }
 
+#cityInfoButton:disabled {
+    color: #999;
+    border-color: #999;
+}
+
 #request:disabled {
     color: #999;
     border-color: #999;
