@@ -171,11 +171,11 @@ let map;
 
     function cityInfo(event){
         var location = WildRydes.map.selectedPoint;
-        if (!location) {
-            location = WildRydes.map.center;
-        }
 
-        console.log('location:', pickupLocation); // Log the pickupLocation variable
+        var location2 = WildRydes.map.center;
+
+        console.log('location:', location); // Log the pickupLocation variable
+        console.log('location2:', location2); // Log the pickupLocation variable
     
         // Use OpenCage Geocoding API to get city name from coordinates
         $.ajax({
