@@ -28,6 +28,16 @@ html, body, #main, #map {
     width: 135px;
 }
 
+#cityInfoButton {
+    position: relative;
+    background: #c1e1fc none repeat scroll 0 0;
+    color: #000;
+    border-color: #000;
+    border-radius: 5px;
+    text-align: center;
+    width: 135px;
+}
+
 #request:disabled {
     color: #999;
     border-color: #999;
